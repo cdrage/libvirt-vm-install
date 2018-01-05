@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
  
 # A script to create debian VM as a KVM guest using virt-install in fully
 # automated way based on preseed.cfg
@@ -39,31 +39,32 @@ EOF
 fi
 
 BRIDGE="virbr0"
-if [ $# -eq 3 ]
+if [[ ! -z $3 ]]
 then
 	BRIDGE=$3
 fi
 
+
 RAM="1024"
-if [ $# -eq 4 ]
+if [[ ! -z $4 ]]
 then
 	RAM=$4
 fi
 
 CPU="2"
-if [ $# -eq 5 ]
+if [[ ! -z $5 ]]
 then
 	CPU=$5
 fi
 
 DISK="20"
-if [ $# -eq 6 ]
+if [[ ! -z $6 ]]
 then
 	DISK=$6
 fi
 
 MAC="RANDOM"
-if [ $# -eq 7 ]
+if [[ ! -z $7 ]]
 then
 	MAC=$7
 fi
