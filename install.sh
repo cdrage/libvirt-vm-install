@@ -15,10 +15,11 @@ LINUX_VARIANT="debian9"
 if [ $# -lt 1 ]
 then
 	cat <<EOF
-Usage: $0 <GUEST_NAME> <PASSWORD> [RAM] [CPU] [DISK] [MAC_ADDRESS]"
+Usage: $0 <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
+  BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
   RAM           Default: 1024
   CPU           Default: 2
   DISK          Default: 20
@@ -37,28 +38,34 @@ EOF
 	exit 1
 fi
 
-RAM="1024"
+BRIDGE="virbr0"
 if [ $# -eq 3 ]
 then
-	RAM=$3
+	BRIDGE=$3
+fi
+
+RAM="1024"
+if [ $# -eq 4 ]
+then
+	RAM=$4
 fi
 
 CPU="2"
-if [ $# -eq 4 ]
+if [ $# -eq 5 ]
 then
-	CPU=$4
+	CPU=$5
 fi
 
 DISK="20"
-if [ $# -eq 5 ]
+if [ $# -eq 6 ]
 then
-	DISK=$5
+	DISK=$6
 fi
 
 MAC="RANDOM"
-if [ $# -eq 6 ]
+if [ $# -eq 7 ]
 then
-	MAC=$6
+	MAC=$7
 fi
 
 # Create tarball with some stuff we would like to install into the system.
@@ -84,7 +91,7 @@ virt-install \
 --controller usb,model=none \
 --graphics none \
 --noautoconsole \
---network bridge=virbr0,mac=${MAC},model=virtio \
+--network bridge=${BRIDGE},mac=${MAC},model=virtio \
 --extra-args="auto=true hostname="${1}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
 rm postinst.tar.gz
