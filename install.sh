@@ -92,7 +92,7 @@ virt-install \
 --controller usb,model=none \
 --graphics none \
 --noautoconsole \
---network bridge=${BRIDGE},mac=${MAC},model=virtio \
+--network bridge=${BRIDGE} \
 --extra-args="auto=true hostname="${1}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
 rm postinst.tar.gz
