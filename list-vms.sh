@@ -13,3 +13,7 @@ list_all_vms() {
 }
 
 list_all_vms
+
+echo ""
+echo "Note: If an IP address is blank. Use nmap and re-run list-vms.sh"
+echo "ex. arp -sn 192.168.1.0/24"
