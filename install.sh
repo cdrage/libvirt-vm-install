@@ -103,18 +103,8 @@ sudo virsh console ${1}
 # Start the VM after it's installed
 sudo virsh start ${1}
 
-# Grab the IP address
-while [ true ]; do
-  echo "$VM: Gathering IP..."
-  VM_IP=$(for mac in `sudo virsh domiflist ${1} |grep -o -E "([0-9a-f]{2}:){5}([0-9a-f]{2})"` ; do sudo arp -e |grep $mac  |grep -o -P "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" ; done)
-  if [ ! -z "${VM_IP}" ]; then
-    break
-  fi
-  sleep 1
-done
-
 echo ""
+echo " ${1} added. You can now login using root."
 echo ""
-echo "You can now login using:"
-echo "ssh root@${VM_IP}"
+echo "Use ./list-vms.sh to gather IP information"
 echo ""
