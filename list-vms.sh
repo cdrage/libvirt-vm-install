@@ -19,4 +19,4 @@ list_all_vms
 
 echo ""
 echo "Note: If an IP address is blank. Use nmap and re-run list-vms.sh"
-echo "ex. nmap -sn 192.168.1.0/24"
+echo "ex. nmap -sP 192.168.1.0/24"
