@@ -29,9 +29,9 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
   BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
-  RAM           Default: 2048
+  RAM           Default: 2048MB
   CPU           Default: 2
-  DISK          Default: 20
+  DISK          Default: 30GB
   MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
                 when DHCP server expects your guest to have predefined MAC
 
@@ -66,7 +66,7 @@ then
 	CPU=$6
 fi
 
-DISK="20"
+DISK="30"
 if [[ ! -z $7 ]]
 then
 	DISK=$7
