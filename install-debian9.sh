@@ -8,6 +8,7 @@
 
 # Domain is necessary in order to avoid debian installer to
 # require manual domain entry during the install.
+
 DOMAIN=`/bin/hostname -d` # Use domain of the host system
 DIST_URL="https://d-i.debian.org/daily-images/amd64/"
 LINUX_VARIANT="debian9"
@@ -28,7 +29,7 @@ Usage: $0 <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
 SSH:
 
-  By default, the public SSH key at ~/.ssh/id_rsa.pub will be copied over to the VM
+  By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
 
 Example:
   
@@ -68,6 +69,9 @@ if [[ ! -z $7 ]]
 then
 	MAC=$7
 fi
+
+# Copy authorized_keys over
+cp authorized_keys postinst/authorized_keys
 
 # Create tarball with some stuff we would like to install into the system.
 tar cvfz postinst.tar.gz postinst

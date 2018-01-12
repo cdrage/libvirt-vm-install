@@ -1,45 +1,22 @@
-# Debian Stretch unattended VM guest installer
+# VM Installers for Libvirt / KVM
 
-Simple script that uses **virt-install** and configures Debian installer
-for unattended installation and custom configuration using **preseed**
-config in order to create freshly installed Debian KVM guest.
+Scripts to install:
+  - Debian
+  - CentOS
 
-```
-Usage: ./install.sh <GUEST_NAME> <PASSWORD> [MAC_ADDRESS]
+Scripts are used with the combination of `virt-install` and a preseed file.
 
-  GUEST_NAME    used as guest hostname, name of the VM and image file name
-  MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
-                when DHCP server expects your guest to have predefined MAC
-```
+**Prerequisites:**
 
-Guest OS is minimal no-GUI Debian installation configured with serial console
-for ability to `virsh console <GUEST_NAME>`.
+If you wish to use your OWN authorized_keys, edit the `authorized_keys` file in the root directory. By default, this file is copied within the VM.
 
-The VM created has:
+Recommended packages:
 
-  - No user created
-  - Root only
-  - SSH password login
+ - virt-install: `apt-get install virtinst`
+ - KVM/qemu: `apt-get install qemu-kvm libvirt-daemon # something else?`
+ -
+Network configuration:
 
-It's recommend that you (ideally, using ansible):
-
-  - Create a user
-  - Disable root login (use sudo)
-  - Copy over your ssh key and disable ssh password login
-
-It is easy to change the script to add any extra packages and configuration
-files during unattended installation. See postinst.sh as well as preseed.cfg
-
-Actually, the main point of sharing this script is to provide an example of
-unattended Debian VM creation or a base for your own script.
-
-Prerequisites
--------------
- * virt-install: `apt-get install virtinst`
- * KVM/qemu: `apt-get install qemu-kvm libvirt-daemon # something else?`
-
-Network configuration
----------------------
 Script works best with bridged network, when guests are able to use DHCP
 server. In case you want something else, replace `br0` in arguments to
 virt-install in `install.sh`.
@@ -60,7 +37,49 @@ iface br0 inet dhcp
         bridge_maxwait 0
 ```
 
-More Info
----------
+**SECURITY NOTES!**
+
+By default, this will create a root user with the assigned password as well as access via the `authorized_keys` file. It is EXTREMELY recommended to disallow root SSH access. With the combination of these scripts and https://github.com/cdrage/ansible-playbooks is how I setup my VM's.
+
+Guest OS is minimal no-GUI Debian installation configured with serial console
+for ability to `virsh console <GUEST_NAME>`.
+
+The VM created has:
+
+  - No user created
+  - Root only
+  - SSH password login
+
+It's recommend that you (ideally, using ansible):
+
+  - Create a user
+  - Disable root login (use sudo)
+  - Copy over your ssh key and disable ssh password login
+  -
+## Debian
+
+```
+Usage: ./install-debian9.sh <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
+
+  GUEST_NAME    Used as guest hostname, name of the VM and image file name
+  PASSWORD      Password to use with the VM (root login)
+  BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
+  RAM           Default: 1024
+  CPU           Default: 2
+  DISK          Default: 20
+  MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
+                when DHCP server expects your guest to have predefined MAC
+
+SSH:
+
+  By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
+
+Example:
+
+  ./install.sh test password
+```
+
+## More Info
+
 * https://www.debian.org/releases/stable/example-preseed.txt
 * original source: https://github.com/pin/debian-vm-install

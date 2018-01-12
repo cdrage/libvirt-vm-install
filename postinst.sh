@@ -15,3 +15,8 @@ echo -n > /etc/motd
 
 # Unpack postinst tarball.
 tar -x -v -z -C/tmp -f /tmp/postinst.tar.gz
+
+# Install SSH keys to root
+mkdir -m700 /root/.ssh
+cat /tmp/postinst/authorized_keys > /root/.ssh/authorized_keys
+chown -R root:root /root/.ssh
