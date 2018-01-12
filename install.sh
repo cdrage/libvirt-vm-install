@@ -80,10 +80,12 @@ fi
 
 start_and_disclaimer() {
   echo ""
-  echo " ${2} added. The installation is IN PROGRESS."
+  echo "============================================================="
+  echo "${2} added. The installation is IN PROGRESS."
   echo ""
   echo "Use 'virsh console ${2}' to view installation progress"
   echo "Use ./list-vms.sh to gather IP information after installation"
+  echo "============================================================="
   echo ""
 }
 
