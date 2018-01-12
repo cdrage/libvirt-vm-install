@@ -1,6 +1,6 @@
 # VM Installers for Libvirt / KVM
 
-Scripts to install:
+OS available for installation:
   - Debian
   - CentOS
 
@@ -56,27 +56,30 @@ It's recommend that you (ideally, using ansible):
   - Disable root login (use sudo)
   - Copy over your ssh key and disable ssh password login
   -
-## Debian
+
+## How to use
 
 ```
-Usage: ./install-debian9.sh <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
+▶ ./install.sh 
+Usage: ./install.sh <OS> <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
-  GUEST_NAME    Used as guest hostname, name of the VM and image file name
-  PASSWORD      Password to use with the VM (root login)
-  BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
-  RAM           Default: 1024
-  CPU           Default: 2
-  DISK          Default: 20
-  MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
-                when DHCP server expects your guest to have predefined MAC
+	OS            debian/centos
+	GUEST_NAME    Used as guest hostname, name of the VM and image file name
+	PASSWORD      Password to use with the VM (root login)
+	BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
+	RAM           Default: 2048
+	CPU           Default: 2
+	DISK          Default: 20
+	MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
+	when DHCP server expects your guest to have predefined MAC
 
 SSH:
 
-  By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
+	By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
 
 Example:
 
-  ./install.sh test password
+	./install.sh debian test password
 ```
 
 ## More Info
