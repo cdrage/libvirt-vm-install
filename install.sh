@@ -128,6 +128,9 @@ debian_install() {
 
 centos_install() {
 
+  # Copy authorized_keys over
+  cp authorized_keys postinst/authorized_keys
+
   # Create tarball with some stuff we would like to install into the system.
   tar cvfz postinst.tar.gz postinst
 
