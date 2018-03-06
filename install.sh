@@ -30,9 +30,9 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK]
   PASSWORD      Password to use with the VM (root login)
   PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
   BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
-  RAM           Default: 2048MB
+  RAM           Default: 2048
   CPU           Default: 2
-  DISK          Default: 30GB
+  DISK          Default: 30
   MAC_ADDRESS   allows to use specific MAC on the network, this is helpful
                 when DHCP server expects your guest to have predefined MAC
 
@@ -43,6 +43,8 @@ SSH:
 Example:
   
   ./install.sh debian test password ~/.ssh/id_rsa.pub
+
+  ./install.sh debian test password ~/.ssh/id_rsa.pub br0 4096 4 50
 
 EOF
 	exit 1
