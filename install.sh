@@ -23,11 +23,12 @@ CENTOS_LINUX_VARIANT="rhel7"
 if [ $# -lt 1 ]
 then
 	cat <<EOF
-Usage: $0 <OS> <GUEST_NAME> <PASSWORD> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
+Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
   OS            debian/centos
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
+  PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
   BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
   RAM           Default: 2048MB
   CPU           Default: 2
@@ -41,41 +42,41 @@ SSH:
 
 Example:
   
-  ./install.sh debian test password
+  ./install.sh debian test password ~/.ssh/id_rsa.pub
 
 EOF
 	exit 1
 fi
 
 BRIDGE="virbr0"
-if [[ ! -z $4 ]]
+if [[ ! -z $5 ]]
 then
-	BRIDGE=$4
+	BRIDGE=$5
 fi
 
 
 RAM="2048"
-if [[ ! -z $5 ]]
+if [[ ! -z $6 ]]
 then
-	RAM=$5
+	RAM=$6
 fi
 
 CPU="2"
-if [[ ! -z $6 ]]
+if [[ ! -z $7 ]]
 then
-	CPU=$6
+	CPU=$7
 fi
 
 DISK="30"
-if [[ ! -z $7 ]]
+if [[ ! -z $8 ]]
 then
-	DISK=$7
+	DISK=$8
 fi
 
 MAC="RANDOM"
-if [[ ! -z $8 ]]
+if [[ ! -z $9 ]]
 then
-	MAC=$8
+	MAC=$9
 fi
 
 start_and_disclaimer() {
@@ -93,7 +94,7 @@ start_and_disclaimer() {
 
 debian_install() {
   # Copy authorized_keys over
-  cp authorized_keys postinst/authorized_keys
+  cp ${4} postinst/authorized_keys
 
   # Create tarball with some stuff we would like to install into the system.
   tar cvfz postinst.tar.gz postinst
@@ -128,16 +129,12 @@ debian_install() {
 
 centos_install() {
 
-  # Copy authorized_keys over
-  cp authorized_keys postinst/authorized_keys
-
-  # Create tarball with some stuff we would like to install into the system.
-  tar cvfz postinst.tar.gz postinst
-
   # Replace information within preseed.cfg
   cp ks.cfg /tmp/ks.cfg
+  SSH_KEY=`cat ${4}`
   sed -i "s,%PASSWORD%,${3},g" "/tmp/ks.cfg"
   sed -i "s,%HOSTNAME%,${2},g" "/tmp/ks.cfg"
+  sed -i "s,%SSH_KEY%,${SSH_KEY},g" "/tmp/ks.cfg"
 
   virt-install \
   --connect=qemu:///system \
@@ -146,7 +143,6 @@ centos_install() {
   --vcpus=${CPU} \
   --disk size=${DISK},path=/var/lib/libvirt/images/${2}.img,bus=virtio,cache=none \
   --initrd-inject=/tmp/ks.cfg \
-  --initrd-inject=postinst.tar.gz \
   --location ${CENTOS_DIST_URL} \
   --os-type linux \
   --os-variant ${CENTOS_LINUX_VARIANT} \
@@ -156,8 +152,6 @@ centos_install() {
   --noautoconsole \
   --network bridge=${BRIDGE} \
   --extra-args="ks=file:/ks.cfg auto=true hostname="${2}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
-
-  rm postinst.tar.gz
 
   start_and_disclaimer "$@"
 }

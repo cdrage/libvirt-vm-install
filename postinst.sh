@@ -14,7 +14,7 @@ update-grub
 echo -n > /etc/motd
 
 # Unpack postinst tarball.
-tar -x -v -z -C/tmp -f /tmp/postinst.tar.gz
+tar -xvzf /tmp/postinst.tar.gz -C /tmp
 
 # Install SSH keys to root
 mkdir -m700 /root/.ssh
