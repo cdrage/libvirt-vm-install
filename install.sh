@@ -29,7 +29,7 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK]
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
   PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
-  BRIDGE        Default: virbr0 (default interface), use br0 for a VM host
+  BRIDGE        Default: bridge=virbr0 (default interface), use br0 for a VM host
   RAM           Default: 2048
   CPU           Default: 2
   DISK          Default: 30
@@ -50,7 +50,7 @@ EOF
 	exit 1
 fi
 
-BRIDGE="virbr0"
+BRIDGE="bridge=virbr0"
 if [[ ! -z $5 ]]
 then
 	BRIDGE=$5
@@ -121,7 +121,7 @@ debian_install() {
   --controller usb,model=none \
   --graphics none \
   --noautoconsole \
-  --network bridge=${BRIDGE} \
+  --network ${BRIDGE} \
   --extra-args="auto=true hostname="${2}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
   rm postinst.tar.gz
@@ -152,7 +152,7 @@ centos_install() {
   --controller usb,model=none \
   --graphics none \
   --noautoconsole \
-  --network bridge=${BRIDGE} \
+  --network ${BRIDGE} \
   --extra-args="ks=file:/ks.cfg auto=true hostname="${2}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
   start_and_disclaimer "$@"
