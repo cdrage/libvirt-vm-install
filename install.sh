@@ -17,7 +17,7 @@ DOMAIN=`/bin/hostname -d` # Use domain of the host system
 DEBIAN_DIST_URL="https://d-i.debian.org/daily-images/amd64/"
 DEBIAN_LINUX_VARIANT="debian9"
 
-CENTOS_DIST_URL="http://mirror.csclub.uwaterloo.ca/centos/7.4.1708/os/x86_64/"
+CENTOS_DIST_URL="http://mirror.csclub.uwaterloo.ca/centos/7/os/x86_64/"
 CENTOS_LINUX_VARIANT="rhel7"
 
 if [ $# -lt 1 ]
