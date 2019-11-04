@@ -13,19 +13,25 @@ DOMAIN=`/bin/hostname -d` # Use domain of the host system
 
 
 # List of OS resources
+DEBIAN_DIST_URL="http://ftp.debian.org/debian/dists/buster/main/installer-amd64/"
+DEBIAN_LINUX_VARIANT="debian10"
 
-DEBIAN_DIST_URL="https://d-i.debian.org/daily-images/amd64/"
-DEBIAN_LINUX_VARIANT="debian9"
+CENTOS_VERSION="8"
+CENTOS_DIST_URL="https://mirror.csclub.uwaterloo.ca/centos/$CENTOS_VERSION/BaseOS/x86_64/os/"
+CENTOS_SOURCES="https://mirror.csclub.uwaterloo.ca/centos/$CENTOS_VERSION/BaseOS/x86_64/os/"
+CENTOS_LINUX_VARIANT="rhel8.0"
 
-CENTOS_DIST_URL="http://mirror.csclub.uwaterloo.ca/centos/7/os/x86_64/"
-CENTOS_LINUX_VARIANT="rhel7"
+FEDORA_VERSION="31"
+FEDORA_DIST_URL="https://mirror.csclub.uwaterloo.ca/fedora/linux/releases/$FEDORA_VERSION/Server/x86_64/os/"
+FEDORA_SOURCES="https://mirror.csclub.uwaterloo.ca/fedora/linux/releases/$FEDORA_VERSION/Server/x86_64/os/"
+FEDORA_LINUX_VARIANT="fedora29" # actually 31 but got to use this for compatibility..
 
 if [ $# -lt 1 ]
 then
 	cat <<EOF
 Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
-  OS            debian/centos
+  OS            debian/centos/fedora
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
   PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
@@ -37,6 +43,10 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK]
                 when DHCP server expects your guest to have predefined MAC
 
 SSH:
+
+  This installs the OS with ONLY a root account!!
+
+  Use ansible or create your own users within the OS.
 
   By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
 
@@ -132,8 +142,9 @@ debian_install() {
 centos_install() {
 
   # Replace information within preseed.cfg
-  cp ks.cfg /tmp/ks.cfg
+  cp centos_ks.cfg /tmp/ks.cfg
   SSH_KEY=`cat ${4}`
+  sed -i "s,%CENTOS_SOURCES%,${CENTOS_SOURCES},g" "/tmp/ks.cfg"
   sed -i "s,%PASSWORD%,${3},g" "/tmp/ks.cfg"
   sed -i "s,%HOSTNAME%,${2},g" "/tmp/ks.cfg"
   sed -i "s,%SSH_KEY%,${SSH_KEY},g" "/tmp/ks.cfg"
@@ -158,6 +169,36 @@ centos_install() {
   start_and_disclaimer "$@"
 }
 
+fedora_install() {
+
+  # Replace information within preseed.cfg
+  cp fedora_ks.cfg /tmp/ks.cfg
+  SSH_KEY=`cat ${4}`
+  sed -i "s,%FEDORA_SOURCES%,${FEDORA_SOURCES},g" "/tmp/ks.cfg"
+  sed -i "s,%PASSWORD%,${3},g" "/tmp/ks.cfg"
+  sed -i "s,%HOSTNAME%,${2},g" "/tmp/ks.cfg"
+  sed -i "s,%SSH_KEY%,${SSH_KEY},g" "/tmp/ks.cfg"
+
+  virt-install \
+  --connect=qemu:///system \
+  --name=${2} \
+  --ram=${RAM} \
+  --vcpus=${CPU} \
+  --disk size=${DISK},path=/var/lib/libvirt/images/${2}.img,bus=virtio,cache=none \
+  --initrd-inject=/tmp/ks.cfg \
+  --location ${FEDORA_DIST_URL} \
+  --os-type linux \
+  --os-variant ${FEDORA_LINUX_VARIANT} \
+  --virt-type=kvm \
+  --controller usb,model=none \
+  --graphics none \
+  --noautoconsole \
+  --network ${BRIDGE} \
+  --extra-args="ks=file:/ks.cfg auto=true hostname="${2}" domain="${DOMAIN}" rd.driver.pre=loop console=tty0 console=ttyS0,115200n8 serial"
+
+  start_and_disclaimer "$@"
+}
+
 
 case "$1" in
 "debian")
@@ -165,6 +206,9 @@ case "$1" in
     ;;
 "centos")
     centos_install "$@"
+    ;;
+"fedora")
+    fedora_install "$@"
     ;;
 *)
     echo "Not a valid OS entry"
