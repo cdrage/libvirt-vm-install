@@ -35,7 +35,7 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK]
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
   PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
-  BRIDGE        Default: bridge=virbr0 (default interface), use br0 for a VM host
+  BRIDGE        Default: bridge=virbr0 (default interface), use bridge=br0 for a VM host
   RAM           Default: 2048
   CPU           Default: 2
   DISK          Default: 30
@@ -45,16 +45,13 @@ Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK]
 SSH:
 
   This installs the OS with ONLY a root account!!
-
   Use ansible or create your own users within the OS.
-
   By default, authorized_keys in the root directory of this folder is copied over to the VM for root access.
 
-Example:
+Examples:
   
   ./install.sh debian test password ~/.ssh/id_rsa.pub
-
-  ./install.sh debian test password ~/.ssh/id_rsa.pub br0 4096 4 50
+  ./install.sh debian test password ~/.ssh/id_rsa.pub bridge=br0 4096 4 50
 
 EOF
 	exit 1
