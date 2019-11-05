@@ -16,6 +16,11 @@ DOMAIN=`/bin/hostname -d` # Use domain of the host system
 DEBIAN_DIST_URL="http://ftp.debian.org/debian/dists/buster/main/installer-amd64/"
 DEBIAN_LINUX_VARIANT="debian10"
 
+# My own stuff.. change to your OWN location
+RHEL_VERSION="8"
+RHEL_CDROM_LOCATION="/mnt/storageboi/Charlie/isos/rhel8.iso"
+CENTOS_LINUX_VARIANT="rhel8.0"
+
 CENTOS_VERSION="8"
 CENTOS_DIST_URL="https://mirror.csclub.uwaterloo.ca/centos/$CENTOS_VERSION/BaseOS/x86_64/os/"
 CENTOS_SOURCES="https://mirror.csclub.uwaterloo.ca/centos/$CENTOS_VERSION/BaseOS/x86_64/os/"
@@ -31,7 +36,7 @@ then
 	cat <<EOF
 Usage: $0 <OS> <GUEST_NAME> <PASSWORD> <PUB_SSH_KEY> [BRIDGE] [RAM] [CPU] [DISK] [MAC_ADDRESS]"
 
-  OS            debian/centos/fedora
+  OS            debian/centos/fedora/rhel
   GUEST_NAME    Used as guest hostname, name of the VM and image file name
   PASSWORD      Password to use with the VM (root login)
   PUB_SSH_KEY   Public SSH Key (ex: ~/.ssh/id_rsa.pub)
@@ -132,6 +137,36 @@ debian_install() {
   --extra-args="auto=true hostname="${2}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
   rm postinst.tar.gz
+
+  start_and_disclaimer "$@"
+}
+
+rhel_install() {
+
+  # Replace information within preseed.cfg
+  cp rhel_ks.cfg /tmp/ks.cfg
+  SSH_KEY=`cat ${4}`
+  sed -i "s,%RHEL_SOURCES%,${RHEL_SOURCES},g" "/tmp/ks.cfg"
+  sed -i "s,%PASSWORD%,${3},g" "/tmp/ks.cfg"
+  sed -i "s,%HOSTNAME%,${2},g" "/tmp/ks.cfg"
+  sed -i "s,%SSH_KEY%,${SSH_KEY},g" "/tmp/ks.cfg"
+
+  virt-install \
+  --connect=qemu:///system \
+  --name=${2} \
+  --ram=${RAM} \
+  --vcpus=${CPU} \
+  --disk size=${DISK},path=/var/lib/libvirt/images/${2}.img,bus=virtio,cache=none \
+  --initrd-inject=/tmp/ks.cfg \
+  --cdrom $RHEL_CDROM_LOCATION \
+  --os-type linux \
+  --os-variant ${RHEL_LINUX_VARIANT} \
+  --virt-type=kvm \
+  --controller usb,model=none \
+  --graphics none \
+  --noautoconsole \
+  --network ${BRIDGE} \
+  --extra-args="ks=file:/ks.cfg auto=true hostname="${2}" domain="${DOMAIN}" console=tty0 console=ttyS0,115200n8 serial"
 
   start_and_disclaimer "$@"
 }
