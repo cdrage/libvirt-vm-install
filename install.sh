@@ -18,8 +18,7 @@ DEBIAN_LINUX_VARIANT="debian10"
 
 # My own stuff.. change to your OWN location
 RHEL_VERSION="8"
-RHEL_CDROM_LOCATION="/mnt/storageboi/Charlie/isos/rhel8.iso"
-CENTOS_LINUX_VARIANT="rhel8.0"
+RHEL_LINUX_VARIANT="rhel8.0"
 
 CENTOS_VERSION="8"
 CENTOS_DIST_URL="https://mirror.csclub.uwaterloo.ca/centos/$CENTOS_VERSION/BaseOS/x86_64/os/"
@@ -151,14 +150,21 @@ rhel_install() {
   sed -i "s,%HOSTNAME%,${2},g" "/tmp/ks.cfg"
   sed -i "s,%SSH_KEY%,${SSH_KEY},g" "/tmp/ks.cfg"
 
-  virt-install \
+  if [ -z "$RHEL_ISO" ]
+  then
+      echo "Must supply RHEL_ISO env variable with the location of the iso.."
+      exit
+  fi
+
+  # Run as sudo since you need to mount the ISO...
+  sudo virt-install \
   --connect=qemu:///system \
   --name=${2} \
   --ram=${RAM} \
   --vcpus=${CPU} \
   --disk size=${DISK},path=/var/lib/libvirt/images/${2}.img,bus=virtio,cache=none \
   --initrd-inject=/tmp/ks.cfg \
-  --cdrom $RHEL_CDROM_LOCATION \
+  --location $RHEL_ISO_LOCATION \
   --os-type linux \
   --os-variant ${RHEL_LINUX_VARIANT} \
   --virt-type=kvm \
@@ -241,6 +247,9 @@ case "$1" in
     ;;
 "fedora")
     fedora_install "$@"
+    ;;
+"rhel")
+    rhel_install "$@"
     ;;
 *)
     echo "Not a valid OS entry"
