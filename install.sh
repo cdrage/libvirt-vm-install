@@ -164,7 +164,7 @@ rhel_install() {
   --vcpus=${CPU} \
   --disk size=${DISK},path=/var/lib/libvirt/images/${2}.img,bus=virtio,cache=none \
   --initrd-inject=/tmp/ks.cfg \
-  --location $RHEL_ISO_LOCATION \
+  --location $RHEL_ISO \
   --os-type linux \
   --os-variant ${RHEL_LINUX_VARIANT} \
   --virt-type=kvm \
